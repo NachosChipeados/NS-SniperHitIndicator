@@ -1,0 +1,29 @@
+// v1.01
+//This file is auto-generated from reVaMpT. Edit at your own risk.
+"Basic"
+{
+	"$surfaceprop" 					"default"
+	"$basetexture" 					"vgui/hud/hit_confirm_bg"
+	"$translucent" 					"1"
+
+	"$vertexcolor" 					"1"
+	"$vertcoloristint" 				"1"
+	"$vertexalpha" 					"1"
+	"$ignorez" 						"1"
+
+// Ads jitter fix
+
+	//"$additive"					"1"	//this helps a bit with tsaa
+
+	"$tsaaResponsive" 				"1"
+    "$tsaaMotionAlphaThreshold" 	"0.01"
+    "$tsaaMotionAlphaRamp" 			"10"
+
+	"Proxies"
+	{
+		"HoloSight"
+		{
+			"resultVar" "$alpha"
+		}
+	}
+}

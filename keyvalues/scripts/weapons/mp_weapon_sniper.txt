@@ -1,0 +1,6 @@
+WeaponData
+{
+	"OnWeaponDeactivate"							"OnWeaponDeactivate_weapon_sniper"
+	"OnWeaponStartZoomIn"							"OnWeaponStartZoomIn_weapon_sniper"
+	"OnWeaponStartZoomOut"							"OnWeaponStartZoomOut_weapon_sniper"
+}

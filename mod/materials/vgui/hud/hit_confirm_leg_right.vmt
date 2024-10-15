@@ -1,0 +1,23 @@
+"Basic"
+{
+	"$basetexture"					"vgui/hud/hit_confirm_leg_right"
+	"$additive"       				"1"	
+	"$translucent"					"1"
+	"$vertexcolor"					"1"
+	"$vertexalpha"					"1"
+	"$ignorez"    					"1"
+
+// Ads jitter fix
+
+	"$tsaaResponsive" 				"1"
+    "$tsaaMotionAlphaThreshold" 	"0.01"
+    "$tsaaMotionAlphaRamp" 			"10"
+
+	"Proxies"
+	{
+		"HoloSight"
+		{
+			"resultVar" "$alpha"
+		}
+	}
+}

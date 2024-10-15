@@ -1,0 +1,6 @@
+WeaponData
+{
+	"OnWeaponDeactivate"							"NewOnWeaponDeactivate_weapon_dmr"
+	"OnWeaponStartZoomIn"							"OnWeaponStartZoomIn_weapon_dmr"
+	"OnWeaponStartZoomOut"							"OnWeaponStartZoomOut_weapon_dmr"
+}

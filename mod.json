@@ -1,17 +1,163 @@
 {
-   "Name": "Example.Mod",
-   "Description": "A cool mod that does cool stuff",
-   "Version": "1.0.0",
-   "DownloadLink": "https://northstar.thunderstore.io/package/download/Example/Mod/",
-
-   "LoadPriority": 0,
-   "ConVars": [],
-   "Scripts": [{
-      "Path": "example.nut",
-      "RunOn": "(CLIENT || SERVER) && MP",
-      "ClientCallback": {
-         "Before":"example_callback"
-      }
-   }],
-   "Localisation": []
+    "Name": "Nachos.Sniper_Hit_Indicator",
+	"Description": "Adds back the sniper hit indicator from Titanfall 1.",
+	"Version": "1.0.0",
+	"LoadPriority": 10,
+	"DownloadLink": "https://thunderstore.io/package/download/NachosChipeados/Sniper_Hit_Indicator/1.0.0",
+	"Scripts": [
+		{
+			"Path": "sniper_vgui/cl_sniper_vgui.nut",
+			"RunOn": "CLIENT",
+            "ClientCallback": {
+                "Before": "SniperVGUI_Init"
+			}
+		},
+		{
+			"Path": "sniper_vgui/sniper_vgui_weapons.nut",
+			"RunOn": "( CLIENT || SERVER )"
+		},
+		{
+			"Path": "sniper_vgui/sniper_vgui_settings.nut",
+			"RunOn": "UI",
+			"UICallback": {
+				"Before": "SniperVGUISettings_Init"
+			}
+		}
+	],
+	"ConVars": [
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.DefaultX",
+			"DefaultValue": "-1.2",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.DefaultY",
+			"DefaultValue": "-2.3",
+			"Flags": 16777216
+		},
+/*
+		{
+			"Name": "SniperUI.ThreatX",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.ThreatY",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.ThreatZ_TEST",
+			"DefaultValue": "0",
+		},
+*/
+		{
+			"Name": "SniperUI.StabilizerX",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.StabilizerY",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.AogX",
+			"DefaultValue": "0.5",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.AogY",
+			"DefaultValue": "0.1",
+			"Flags": 16777216
+		},
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.HitTime",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitColorRed",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitColorGreen",
+			"DefaultValue": "80",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitColorBlue",
+			"DefaultValue": "40",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitColorAlpha",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.HitLabelEnabled",
+			"DefaultValue": "1",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitLabelRed",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitLabelGreen",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitLabelBlue",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitLabelAlpha",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.InfoLabelEnabled",
+			"DefaultValue": "1",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.InfoLabelRed",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.InfoLabelGreen",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.InfoLabelBlue",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.InfoLabelAlpha",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.switch",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
+    ],
+	"Localisation": [
+		"resource/sniper_vgui_%language%.txt"
+	]
 }
