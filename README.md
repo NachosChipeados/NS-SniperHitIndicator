@@ -6,5 +6,5 @@ Don't disable the mod while in-game or the game WILL crash. If you disable the m
 
 # Preview
 ![1](https://i.imgur.com/tPbEY8V.png)
-![2](https://i.imgur.com/Kqvkky1.png)
+![2](https://i.imgur.com/fVQg2Fi.png)
 ![3](https://i.imgur.com/G3gZijT.png)
