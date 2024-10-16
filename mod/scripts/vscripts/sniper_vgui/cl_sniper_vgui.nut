@@ -415,7 +415,12 @@ void function SniperVGUI_UpdateTargetData( entity player, var crosshairTarget, e
 				string hit = format( "%.1f", hitData.confidence * 100 )
 				string dist = format( "%.2f", hitData.distance / 39.3701 )
 				string speed = format( "%.2f", hitData.speed / 39.3701 )
-				t.confidenceLabel.SetText( "#WPN_DMR_DATA_R1", hit + "%", dist, speed )
+				
+				// Stupid hack because GetVelocity() doesn't work on NPCs
+				if( IsPilot( target ) )
+					t.confidenceLabel.SetText( "#WPN_DMR_DATA_R1", hit + "%", dist, speed )
+				else
+					t.confidenceLabel.SetText( "#WPN_DMR_DATA_NPC", hit + "%", dist )
 
 				t.confidenceLabel.FadeOverTime( 0, 0.3 )
 
@@ -445,10 +450,6 @@ var function GetHitProbabilityData( entity player, entity target, var hitGroup, 
 	t.hitGroupProbabilityModifier[HITGROUP_RIGHTLEG] <- 0.94
 
 	float targetSpeed = Length( target.GetVelocity() )
-	
-	//vector velocity = target.GetVelocity()
-	//float targetSpeed = Length( velocity )
-
 	float targetDist = Distance( target.GetOrigin(), player.GetOrigin() )
 
 	var confidence = 1.0
