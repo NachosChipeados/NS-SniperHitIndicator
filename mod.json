@@ -111,12 +111,12 @@
 		},
 		{
 			"Name": "SniperUI.HitLabelGreen",
-			"DefaultValue": "255",
+			"DefaultValue": "80",
 			"Flags": 16777216
 		},
 		{
 			"Name": "SniperUI.HitLabelBlue",
-			"DefaultValue": "255",
+			"DefaultValue": "40",
 			"Flags": 16777216
 		},
 		{
@@ -132,17 +132,17 @@
 		},
 		{
 			"Name": "SniperUI.InfoLabelRed",
-			"DefaultValue": "255",
+			"DefaultValue": "153",
 			"Flags": 16777216
 		},
 		{
 			"Name": "SniperUI.InfoLabelGreen",
-			"DefaultValue": "255",
+			"DefaultValue": "217",
 			"Flags": 16777216
 		},
 		{
 			"Name": "SniperUI.InfoLabelBlue",
-			"DefaultValue": "255",
+			"DefaultValue": "234",
 			"Flags": 16777216
 		},
 		{

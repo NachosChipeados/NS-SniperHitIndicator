@@ -30,7 +30,6 @@ global const SniperVGUI_AllowedWeapons = {
 	[ "mp_weapon_lmg" ]			= true, // Funny
 }
 
-
 void function SniperVGUI_Init()
 {
 	if( !IsLobby() )
@@ -50,7 +49,7 @@ void function SniperVGUI_Init()
 	RegisterSignal( "SniperVGUI_TargetChanged" )
 
 	AddCallback_OnLocalPlayerDidDamage( SniperVGUI_DidDamage )
-	AddCallback_OnCrosshairCurrentTargetChanged ( SniperVGUI_CrosshairTargetChanged )
+	AddCallback_OnCrosshairCurrentTargetChanged( SniperVGUI_CrosshairTargetChanged )
 }
 
 
@@ -107,6 +106,9 @@ void function SniperVGUI_CrosshairTargetChanged ( entity player, entity newTarge
 	if ( !IsValid( player ) )
 		return
 
+	if ( !IsValid( newTarget ) )
+		return
+
 	entity activeWeapon = player.GetActiveWeapon()
 	if ( !IsValid( activeWeapon ) )
 		return
@@ -115,9 +117,6 @@ void function SniperVGUI_CrosshairTargetChanged ( entity player, entity newTarge
 
 	var isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
 	if ( !isValidWeapon )
-		return
-
-	if ( !IsValid( newTarget ) )
 		return
 
 	if ( !IsCloaked( newTarget ) && isValidWeapon && player.GetAdsFraction() == 1.0 )
@@ -172,18 +171,20 @@ void function CreateSniperVGUI( entity player, entity weapon )
 		fixedOffsets = 			[ default_x, default_y, 0.0 ]
 	}
 
-	//if ( weapon.HasMod( "scope_4x" ) ) // Not needed
-	//{
-	//	bottomLeftAttachment = 	"SCR_BL_SCOPE_TALON"
-	//	topRightAttachment = 	"SCR_TR_SCOPE_TALON"
-	//}
+/*
+	if ( weapon.HasMod( "scope_4x" ) ) // Not needed
+	{
+		bottomLeftAttachment = 	"SCR_BL_SCOPE_TALON"
+		topRightAttachment = 	"SCR_TR_SCOPE_TALON"
+	}
+*/
 
 /*
 	if ( weapon.HasMod( "threat_scope" ) ) // Doesn't work and i don't know why
 	{
 		bottomLeftAttachment = 	"SCR_BL_SCOPE_WONYEON"
 		topRightAttachment = 	"SCR_TR_SCOPE_WONYEON"
-		fixedOffsets = 			[ threat_x, threat_y, threat_z_TEST ] //0.1 0.0 -1
+		fixedOffsets = 			[ threat_x, threat_y, threat_z_TEST ]
 	}
 */
 	if ( weapon.HasMod( "stabilizer" ) && !isValkyrie )
@@ -303,31 +304,39 @@ void function SniperVGUI_Think( entity player, entity weapon )
 
 void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup )
 {
+	weapon.s.sniperVGUI.EndSignal( "OnDestroy" )
+	player.EndSignal( "SniperVGUI_TargetChanged" )
+	player.EndSignal( "OnDestroy" )
+
 	var t = weapon.s.sniperVGUI.s
 
-	t.nextUpdateTime = Time() + t.confirmationTime
-	t.hitConfirmBG.Show()
-
-    float red = GetConVarFloat( "SniperUI.HitColorRed" )
-    float green = GetConVarFloat( "SniperUI.HitColorGreen" )
-    float blue = GetConVarFloat( "SniperUI.HitColorBlue" )
-    float alpha = GetConVarFloat( "SniperUI.HitColorAlpha" )
-
-    float red_label = GetConVarFloat( "SniperUI.HitLabelRed" )
-    float green_label = GetConVarFloat( "SniperUI.HitLabelGreen" )
-    float blue_label = GetConVarFloat( "SniperUI.HitLabelBlue" )
-	float alpha_label = GetConVarFloat( "SniperUI.HitLabelAlpha" )
-
-	if ( !GetConVarBool("SniperUI.switch" ) && player.GetAdsFraction() == 1.0 )
+	while ( true )
 	{
-		t.hitConfirmPoints[hitGroup].Show()
-		t.hitConfirmPoints[hitGroup].SetColor( red, green, blue, alpha )
-		t.hitConfirmPoints[hitGroup].FadeOverTimeDelayed( 0, t.confirmationTime / 2, t.confirmationTime / 2 + GetConVarFloat( "SniperUI.HitTime" ) )
-
-		//t.confidenceLabel.SetAlpha( alpha_label )
-		t.confidenceLabel.SetColor( red_label, green_label, blue_label, alpha_label )
-		t.confidenceLabel.SetText( "#WPN_DMR_HIT_CONFIRMED" )
-		t.confidenceLabel.FadeOverTimeDelayed( 0, t.confirmationTime / 2, t.confirmationTime / 2 + GetConVarFloat( "SniperUI.HitTime" ) )
+		t.nextUpdateTime = Time() + t.confirmationTime / 2
+		t.hitConfirmBG.Show()
+	
+		float red = GetConVarFloat( "SniperUI.HitColorRed" )
+		float green = GetConVarFloat( "SniperUI.HitColorGreen" )
+		float blue = GetConVarFloat( "SniperUI.HitColorBlue" )
+		float alpha = GetConVarFloat( "SniperUI.HitColorAlpha" )
+	
+		float red_label = GetConVarFloat( "SniperUI.HitLabelRed" )
+		float green_label = GetConVarFloat( "SniperUI.HitLabelGreen" )
+		float blue_label = GetConVarFloat( "SniperUI.HitLabelBlue" )
+		float alpha_label = GetConVarFloat( "SniperUI.HitLabelAlpha" )
+	
+		if ( !GetConVarBool("SniperUI.switch" ) && player.GetAdsFraction() == 1.0 )
+		{
+			t.hitConfirmPoints[hitGroup].Show()
+			t.hitConfirmPoints[hitGroup].SetColor( red, green, blue, alpha )
+			t.hitConfirmPoints[hitGroup].FadeOverTimeDelayed( 0, t.confirmationTime / 2, t.confirmationTime / 2 + GetConVarFloat( "SniperUI.HitTime" ) )
+	
+			//t.confidenceLabel.SetAlpha( alpha_label )
+			t.confidenceLabel.SetColor( red_label, green_label, blue_label, alpha_label )
+			t.confidenceLabel.SetText( "#WPN_DMR_HIT_CONFIRMED" )
+			t.confidenceLabel.FadeOverTimeDelayed( 0, t.confirmationTime / 2, t.confirmationTime / 2 + GetConVarFloat( "SniperUI.HitTime" ) )
+		}
+		wait 0
 	}
 }
 
