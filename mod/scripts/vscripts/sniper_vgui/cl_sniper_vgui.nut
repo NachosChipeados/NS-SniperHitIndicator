@@ -19,15 +19,16 @@ global const SniperVGUI_AllowScan = {
 //	[ "npc_super_spectre" ]		= true,
 //	[ "npc_turret_sentry" ]		= true,
 	[ "player" ]				= true,
+	[ "player_decoy" ]			= true,
 }
 
 global const SniperVGUI_AllowedWeapons = {
 	[ "mp_weapon_dmr" ]			= true,
 	[ "mp_weapon_doubletake" ]	= true,
+	[ "mp_weapon_lmg" ]			= true, // Funny
 	[ "mp_weapon_sniper" ]		= true,
 	[ "mp_weapon_sr_valkyrie" ]	= true,
 	[ "mp_weapon_valkyrie" ]	= true,
-	[ "mp_weapon_lmg" ]			= true, // Funny
 }
 
 void function SniperVGUI_Init()
@@ -46,6 +47,7 @@ void function SniperVGUI_Init()
 	}
 	
 	RegisterSignal( "UpdateSniperVGUI" )
+	RegisterSignal( "UpdateSniperVGUI_KillShot" )
 	RegisterSignal( "SniperVGUI_TargetChanged" )
 
 	AddCallback_OnLocalPlayerDidDamage( SniperVGUI_DidDamage )
@@ -82,17 +84,24 @@ void function SniperVGUI_DidDamage( PlayerDidDamageParams params )
 	int hitGroup = params.hitGroup
 
 	bool isCritShot = (damageType & DF_CRITICAL) ? true : false
+	bool isKillShot = (damageType & DF_KILLSHOT) ? true : false
 	bool isBullet = (damageType & DF_BULLET) ? true : false
 
 	if ( isValidWeapon && attacker.GetAdsFraction() == 1.0 && isBullet )
 	{
 		if ( entClass in SniperVGUI_AllowScan && hitGroup != HITGROUP_GENERIC )
 		{
-			attacker.Signal( "UpdateSniperVGUI", { hitGroup = hitGroup } )
+			if( !isKillShot )
+				attacker.Signal( "UpdateSniperVGUI", { hitGroup = hitGroup } )
+			else
+				attacker.Signal( "UpdateSniperVGUI_KillShot", { hitGroup = hitGroup } )
 		}
 		else if ( victim.IsTitan() && hitGroup == HITGROUP_GENERIC || isCritShot )
 		{
-			attacker.Signal( "UpdateSniperVGUI", { hitGroup = hitGroup } )
+			if( !isKillShot )
+				attacker.Signal( "UpdateSniperVGUI", { hitGroup = hitGroup } )
+			else
+				attacker.Signal( "UpdateSniperVGUI_KillShot", { hitGroup = hitGroup } )
 		}
 	}
 }
@@ -137,17 +146,18 @@ void function CreateSniperVGUI( entity player, entity weapon )
 	if ( !IsValid( modelEnt ) )
 		return
 
-    float default_x = 		GetConVarFloat( "SniperUI.DefaultX" )
-    float default_y = 		GetConVarFloat( "SniperUI.DefaultY" )
+	// TODO: per-weapon overrides
+	float default_x = 		GetConVarFloat( "SniperUI.DefaultX" )
+	float default_y = 		GetConVarFloat( "SniperUI.DefaultY" )
 /*
-    float threat_x = 		GetConVarFloat( "SniperUI.ThreatX" )
-    float threat_y = 		GetConVarFloat( "SniperUI.ThreatY" )
+	float threat_x = 		GetConVarFloat( "SniperUI.ThreatX" )
+	float threat_y = 		GetConVarFloat( "SniperUI.ThreatY" )
 	float threat_z_TEST =	GetConVarFloat( "SniperUI.ThreatZ_TEST" )
 */
-    float stabilizer_x = 	GetConVarFloat( "SniperUI.StabilizerX" )
-    float stabilizer_y = 	GetConVarFloat( "SniperUI.StabilizerY" )
-    float aog_x = 			GetConVarFloat( "SniperUI.AogX" )
-    float aog_y = 			GetConVarFloat( "SniperUI.AogY" )
+	float stabilizer_x = 	GetConVarFloat( "SniperUI.StabilizerX" )
+	float stabilizer_y = 	GetConVarFloat( "SniperUI.StabilizerY" )
+	float aog_x =			GetConVarFloat( "SniperUI.AogX" )
+	float aog_y =			GetConVarFloat( "SniperUI.AogY" )
 
 	string bottomLeftAttachment
 	string topRightAttachment
@@ -160,15 +170,15 @@ void function CreateSniperVGUI( entity player, entity weapon )
 	{
 		bottomLeftAttachment = 	"SCR_BL_SCOPE12X"
 		topRightAttachment = 	"SCR_TR_SCOPE12X"
-		fixedSize = 			[ 1.5, 1.5 ]
-		fixedOffsets = 			[ 0.1, 0.0, 0.0 ]
+		fixedSize =				[ 1.5, 1.5 ]
+		fixedOffsets =			[ 0.1, 0.0, 0.0 ]
 	}
 	else
 	{
 		bottomLeftAttachment = 	"SCR_BL_SCOPEADS"
 		topRightAttachment = 	"SCR_TR_SCOPEADS"
-		fixedSize = 			[ 3.0, 3.0 ]
-		fixedOffsets = 			[ default_x, default_y, 0.0 ]
+		fixedSize =				[ 3.0, 3.0 ]
+		fixedOffsets =			[ default_x, default_y, 0.0 ]
 	}
 
 /*
@@ -184,15 +194,15 @@ void function CreateSniperVGUI( entity player, entity weapon )
 	{
 		bottomLeftAttachment = 	"SCR_BL_SCOPE_WONYEON"
 		topRightAttachment = 	"SCR_TR_SCOPE_WONYEON"
-		fixedOffsets = 			[ threat_x, threat_y, threat_z_TEST ]
+		fixedOffsets =			[ threat_x, threat_y, threat_z_TEST ]
 	}
 */
 	if ( weapon.HasMod( "stabilizer" ) && !isValkyrie )
 	{
 		bottomLeftAttachment = 	"SCR_BL_ORACLE"
 		topRightAttachment = 	"SCR_TR_ORACLE"
-		fixedSize = 			[ 2.0, 2.0 ]
-		fixedOffsets = 			[ stabilizer_x, stabilizer_y, 0.0 ]
+		fixedSize =				[ 2.0, 2.0 ]
+		fixedOffsets =			[ stabilizer_x, stabilizer_y, 0.0 ]
 
 	}
 	else if ( weapon.HasMod( "aog" ) || weapon.HasMod( "aog_r1" ) )
@@ -202,21 +212,21 @@ void function CreateSniperVGUI( entity player, entity weapon )
 
 		if ( isValkyrie )
 		{
-			fixedSize = 		[ 2.0, 2.0 ]
-			fixedOffsets = 		[ 0.0, 0.1, 0.0 ]
+			fixedSize =			[ 2.0, 2.0 ]
+			fixedOffsets =		[ 0.0, 0.1, 0.0 ]
 		}
 		else
 		{
-			fixedSize = 		[ 1.5, 1.5 ]
-			fixedOffsets = 		[ aog_x, aog_y, -2.0 ]
+			fixedSize =			[ 1.5, 1.5 ]
+			fixedOffsets =		[ aog_x, aog_y, -2.0 ]
 		}
 	}
 	else if ( weapon.HasMod( "scope_8x" ) )
 	{
 		bottomLeftAttachment = 	"SCR_BL_SCOPE8X"
 		topRightAttachment = 	"SCR_TR_SCOPE8X"
-		fixedSize = 			[ 1.6, 1.6 ]
-		fixedOffsets = 			[ 0.1, 0.0, 0.0 ]
+		fixedSize =				[ 1.6, 1.6 ]
+		fixedOffsets =			[ 0.1, 0.0, 0.0 ]
 	}
 
 /*
@@ -237,7 +247,7 @@ void function CreateSniperVGUI( entity player, entity weapon )
 	float applyScale = GraphCapped( fovScale, 1.0, 1.3, 1.0, 1.45 )
 
 	entity vgui = CreateClientsideVGuiScreen( vguiName, VGUI_SCREEN_PASS_VIEWMODEL, Vector( 0, 0, 0 ), Vector( 0, 0, 0 ), fixedSize[0] * applyScale, fixedSize[1] * applyScale )
-	var panel 	= vgui.GetPanel()
+	var panel   = vgui.GetPanel()
 	vgui.s.panel <- panel
 	vgui.SetParent( modelEnt, bottomLeftAttachment )
 	vgui.SetAttachOffsetOrigin( Vector( fixedOffsets[0], fixedOffsets[1], fixedOffsets[2] ) )
@@ -274,6 +284,7 @@ void function CreateSniperVGUI( entity player, entity weapon )
 		thread SniperVGUI_PotentialHitThink( player, weapon )
 
 	thread SniperVGUI_Think( player, weapon )
+	thread SniperVGUI_Think_KillShot( player, weapon )
 }
 
 
@@ -301,8 +312,22 @@ void function SniperVGUI_Think( entity player, entity weapon )
 	}
 }
 
+void function SniperVGUI_Think_KillShot( entity player, entity weapon )
+{
+	weapon.s.sniperVGUI.EndSignal( "OnDestroy" )
+	player.EndSignal( "OnDestroy" )
+	weapon.EndSignal( "OnDestroy" )
 
-void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup )
+	while ( true )
+	{
+		var results = player.WaitSignal( "UpdateSniperVGUI_KillShot" )
+		
+		if( GetConVarBool( "SniperUI.HitLabelEnabled" ) )
+			thread SniperVGUI_ShowHit( player, weapon, results.hitGroup, true )
+	}
+}
+
+void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup, bool isKillShot = false )
 {
 	weapon.s.sniperVGUI.EndSignal( "OnDestroy" )
 	player.EndSignal( "SniperVGUI_TargetChanged" )
@@ -312,18 +337,26 @@ void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup )
 
 	while ( true )
 	{
-		t.nextUpdateTime = Time() + t.confirmationTime / 2
+		t.nextUpdateTime = Time() + t.confirmationTime / 1.5
 		t.hitConfirmBG.Show()
 	
-		float red = GetConVarFloat( "SniperUI.HitColorRed" )
-		float green = GetConVarFloat( "SniperUI.HitColorGreen" )
-		float blue = GetConVarFloat( "SniperUI.HitColorBlue" )
-		float alpha = GetConVarFloat( "SniperUI.HitColorAlpha" )
+		float red =			GetConVarFloat( "SniperUI.HitColorRed" )
+		float green =		GetConVarFloat( "SniperUI.HitColorGreen" )
+		float blue =		GetConVarFloat( "SniperUI.HitColorBlue" )
+		float alpha =		GetConVarFloat( "SniperUI.HitColorAlpha" )
 	
-		float red_label = GetConVarFloat( "SniperUI.HitLabelRed" )
-		float green_label = GetConVarFloat( "SniperUI.HitLabelGreen" )
-		float blue_label = GetConVarFloat( "SniperUI.HitLabelBlue" )
-		float alpha_label = GetConVarFloat( "SniperUI.HitLabelAlpha" )
+		float red_label =	GetConVarFloat( "SniperUI.HitLabelRed" )
+		float green_label =	GetConVarFloat( "SniperUI.HitLabelGreen" )
+		float blue_label =	GetConVarFloat( "SniperUI.HitLabelBlue" )
+		float alpha_label =	GetConVarFloat( "SniperUI.HitLabelAlpha" )
+
+		if( isKillShot )
+		{
+			red_label =		GetConVarFloat( "SniperUI.KillLabelRed" )
+			green_label =	GetConVarFloat( "SniperUI.KillLabelGreen" )
+			blue_label =	GetConVarFloat( "SniperUI.KillLabelBlue" )
+			alpha_label =	GetConVarFloat( "SniperUI.KillLabelAlpha" )
+		}
 	
 		if ( !GetConVarBool("SniperUI.switch" ) && player.GetAdsFraction() == 1.0 )
 		{
@@ -333,13 +366,17 @@ void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup )
 	
 			//t.confidenceLabel.SetAlpha( alpha_label )
 			t.confidenceLabel.SetColor( red_label, green_label, blue_label, alpha_label )
-			t.confidenceLabel.SetText( "#WPN_DMR_HIT_CONFIRMED" )
+			
+			if( !isKillShot )
+				t.confidenceLabel.SetText( "#WPN_DMR_HIT_CONFIRMED" )
+			else
+				t.confidenceLabel.SetText( "#WPN_DMR_KILL_CONFIRMED" )
+
 			t.confidenceLabel.FadeOverTimeDelayed( 0, t.confirmationTime / 2, t.confirmationTime / 2 + GetConVarFloat( "SniperUI.HitTime" ) )
 		}
 		wait 0
 	}
 }
-
 
 void function SniperVGUI_PotentialHitThink( entity player, entity weapon )
 {
@@ -401,23 +438,30 @@ void function SniperVGUI_UpdateTargetData( entity player, var crosshairTarget, e
 
 			var hitData = GetHitProbabilityData( player, target, hitGroup, weapon )
 
-			if ( !GetConVarBool("SniperUI.switch" ) )
+			float unit_div
+			if ( !GetConVarBool( "SniperUI.Measure_HU" ) )
+				unit_div = 39.3701
+			else
+				unit_div = 1
+
+			if ( !GetConVarBool( "SniperUI.switch" ) )
 			{
-				float alpha = GetConVarFloat( "SniperUI.HitColorAlpha" )
+				float alpha =		GetConVarFloat( "SniperUI.HitColorAlpha" )
 				
-				float red_label = GetConVarFloat( "SniperUI.InfoLabelRed" )
-				float green_label = GetConVarFloat( "SniperUI.InfoLabelGreen" )
-				float blue_label = GetConVarFloat( "SniperUI.InfoLabelBlue" )
-				float alpha_label = GetConVarFloat( "SniperUI.InfoLabelAlpha" )
+				float red_label =	GetConVarFloat( "SniperUI.InfoLabelRed" )
+				float green_label =	GetConVarFloat( "SniperUI.InfoLabelGreen" )
+				float blue_label =	GetConVarFloat( "SniperUI.InfoLabelBlue" )
+				float alpha_label =	GetConVarFloat( "SniperUI.InfoLabelAlpha" )
 
 				//t.confidenceLabel.SetAlpha( alpha_label )
 				t.confidenceLabel.SetColor( red_label, green_label, blue_label, alpha_label )
 				string hit = format( "%.1f", hitData.confidence * 100 )
-				string dist = format( "%.2f", hitData.distance / 39.3701 )
-				string speed = format( "%.2f", hitData.speed / 39.3701 )
+				string dist = format( "%.2f", hitData.distance / unit_div )
+				string speed = format( "%.2f", hitData.speed / unit_div )
 				
 				// Stupid hack because GetVelocity() doesn't work on NPCs
-				if( IsPilot( target ) )
+				// Still letting decoys use it anyway, even if it looks bad
+				if( IsPilot( target ) || IsPilotDecoy( target ) )
 					t.confidenceLabel.SetText( "#WPN_DMR_DATA_R1", hit + "%", dist, speed )
 				else
 					t.confidenceLabel.SetText( "#WPN_DMR_DATA_NPC", hit + "%", dist )

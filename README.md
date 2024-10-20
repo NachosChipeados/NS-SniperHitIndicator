@@ -1,4 +1,4 @@
-Adds back the sniper hit indicator from Titanfall 1. Works with all scopes, except the Threat Scope.
+Adds back the sniper hit indicator from Titanfall 1, but updated with new functionality and customization. Works with all scopes, except the Threat Scope.
 
 ## ⚠️***Warning***
 

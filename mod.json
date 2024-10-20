@@ -111,16 +111,37 @@
 		},
 		{
 			"Name": "SniperUI.HitLabelGreen",
-			"DefaultValue": "80",
+			"DefaultValue": "255",
 			"Flags": 16777216
 		},
 		{
 			"Name": "SniperUI.HitLabelBlue",
-			"DefaultValue": "40",
+			"DefaultValue": "255",
 			"Flags": 16777216
 		},
 		{
 			"Name": "SniperUI.HitLabelAlpha",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.KillLabelRed",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.KillLabelGreen",
+			"DefaultValue": "80",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.KillLabelBlue",
+			"DefaultValue": "40",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.KillLabelAlpha",
 			"DefaultValue": "255",
 			"Flags": 16777216
 		},
@@ -151,6 +172,11 @@
 			"Flags": 16777216
 		},
 ////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.Measure_HU",
+			"DefaultValue": "0",
+			"Flags": 16777216
+		},
 		{
 			"Name": "SniperUI.switch",
 			"DefaultValue": "0",
