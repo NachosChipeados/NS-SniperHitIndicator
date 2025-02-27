@@ -1,5 +1,5 @@
 {
-    "Name": "Nachos.Sniper_Hit_Indicator",
+	"Name": "Nachos.Sniper_Hit_Indicator",
 	"Description": "Adds back the sniper hit indicator from Titanfall 1.",
 	"Version": "1.0.0",
 	"LoadPriority": 10,
@@ -95,6 +95,27 @@
 		},
 		{
 			"Name": "SniperUI.HitColorAlpha",
+			"DefaultValue": "255",
+			"Flags": 16777216
+		},
+////////////////////////////////////////////////////////////////////////
+		{
+			"Name": "SniperUI.HitInfoRed",
+			"DefaultValue": "153",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitInfoGreen",
+			"DefaultValue": "217",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitInfoBlue",
+			"DefaultValue": "234",
+			"Flags": 16777216
+		},
+		{
+			"Name": "SniperUI.HitInfoAlpha",
 			"DefaultValue": "255",
 			"Flags": 16777216
 		},

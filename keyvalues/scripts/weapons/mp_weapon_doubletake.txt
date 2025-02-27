@@ -1,6 +1,5 @@
 WeaponData
 {
-	"OnWeaponDeactivate"							"OnWeaponDeactivate_weapon_doubletake"
-	"OnWeaponStartZoomIn"							"OnWeaponStartZoomIn_weapon_doubletake"
-	"OnWeaponStartZoomOut"							"OnWeaponStartZoomOut_weapon_doubletake"
+	"OnWeaponActivate"		"OnWeaponActivate_weapon_doubletake"
+	"OnWeaponDeactivate"	"OnWeaponDeactivate_weapon_doubletake"
 }
