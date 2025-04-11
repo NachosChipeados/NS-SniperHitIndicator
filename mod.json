@@ -2,7 +2,7 @@
 	"Name": "Nachos.Sniper_Hit_Indicator",
 	"Description": "Adds back the sniper hit indicator from Titanfall 1.",
 	"Version": "1.0.0",
-	"LoadPriority": 10,
+	"LoadPriority": 4,
 	"DownloadLink": "https://thunderstore.io/package/download/NachosChipeados/Sniper_Hit_Indicator/1.0.0",
 	"Scripts": [
 		{

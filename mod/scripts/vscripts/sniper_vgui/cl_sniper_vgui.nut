@@ -44,7 +44,7 @@ void function SniperVGUI_Init()
 		PrecacheHUDMaterial( $"vgui/hud/hit_confirm_leg_left" )
 		PrecacheHUDMaterial( $"vgui/hud/hit_confirm_leg_right" )
 
-		PrecacheResLolLmao( "vgui_sniper" )
+		PrecacheRes( "vgui_sniper" )
 	}
 	
 	RegisterSignal( "UpdateSniperVGUI" )
@@ -609,13 +609,4 @@ var function GetHitProbabilityData( entity player, entity target, var hitGroup, 
 	confidence *= t.hitGroupProbabilityModifier[hitGroup]
 
 	return { confidence = confidence, distance = targetDist, speed = targetSpeed }
-}
-
-// Clone of PrecacheRes
-// Pretty much only here so i don't have to modify cl_mapspawn
-void function PrecacheResLolLmao( resFile )
-{
-	var vgui = CreateClientsideVGuiScreen( resFile, VGUI_SCREEN_PASS_WORLD, Vector(0,0,0), Vector(0,0,0), 4, 4 )
-	Assert( vgui != null, "Failed to precache res file " + resFile )
-	vgui.Destroy()
 }
