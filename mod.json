@@ -13,10 +13,6 @@
 			}
 		},
 		{
-			"Path": "sniper_vgui/sniper_vgui_weapons.nut",
-			"RunOn": "( CLIENT || SERVER )"
-		},
-		{
 			"Path": "sniper_vgui/sniper_vgui_settings.nut",
 			"RunOn": "UI",
 			"UICallback": {

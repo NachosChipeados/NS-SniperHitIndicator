@@ -1,5 +1,0 @@
-WeaponData
-{
-	"OnWeaponActivate"		"NewOnWeaponActivate_weapon_lmg"
-	"OnWeaponDeactivate"	"OnWeaponDeactivate_weapon_lmg"
-}

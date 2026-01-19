@@ -31,10 +31,14 @@ global const SniperVGUI_AllowedWeapons = {
 	[ "mp_weapon_valkyrie" ]	= true,
 }
 
-const TESTTT = 0
+struct
+{
+	entity selectedWeapon
+} file
+
 void function SniperVGUI_Init()
 {
-	if( !IsLobby() )
+	if ( !IsLobby() )
 	{
 		PrecacheHUDMaterial( $"vgui/hud/hit_confirm_bg" )
 		PrecacheHUDMaterial( $"vgui/hud/hit_confirm_head" )
@@ -46,41 +50,42 @@ void function SniperVGUI_Init()
 
 		PrecacheRes( "vgui_sniper" )
 	}
-	
+
 	RegisterSignal( "UpdateSniperVGUI" )
 	RegisterSignal( "UpdateSniperVGUI_KillShot" )
 	RegisterSignal( "SniperVGUI_TargetChanged" )
 
-#if TESTTT
 	AddCallback_OnSelectedWeaponChanged( SniperVGUI_Setup )
-#endif
-
 	AddCallback_OnLocalPlayerDidDamage( SniperVGUI_DidDamage )
 	AddCallback_OnCrosshairCurrentTargetChanged( SniperVGUI_CrosshairTargetChanged )
 }
 
-#if TESTTT
-void function SniperVGUI_Setup( entity selectedWeapon )
+void function SniperVGUI_Setup( entity weapon )
 {
-	DestroySniperVGUI( selectedWeapon )
+	DestroySniperVGUI( file.selectedWeapon )
 
-	thread SniperVGUI_Setup_Threaded( selectedWeapon )
+    if ( !IsValid( weapon ) || weapon.IsWeaponOffhand() )
+        return
+
+    file.selectedWeapon = weapon
+
+	thread SniperVGUI_Setup_Threaded( weapon )
 }
 
 void function SniperVGUI_Setup_Threaded( entity selectedWeapon )
 {
 	WaitFrame()
 
-	var weaponClass = selectedWeapon.GetWeaponClassName()
+	string weaponClass = selectedWeapon.GetWeaponClassName()
 
-	var isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
+	bool isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
 	if ( !isValidWeapon )
 		return
 
 	entity player = GetLocalViewPlayer()
 
-	var hasAog = ( selectedWeapon.HasMod( "aog" ) || selectedWeapon.HasMod( "aog_r1" ) )
-	var hasSights = ( selectedWeapon.HasMod( "scope_4x" ) || selectedWeapon.HasMod( "threat_scope" ) || selectedWeapon.HasMod( "stabilizer" ) || selectedWeapon.HasMod( "scope_dcom" ) )
+	bool hasAog = ( selectedWeapon.HasMod( "aog" ) || selectedWeapon.HasMod( "aog_r1" ) )
+	bool hasSights = ( selectedWeapon.HasMod( "scope_4x" ) || selectedWeapon.HasMod( "threat_scope" ) || selectedWeapon.HasMod( "stabilizer" ) || selectedWeapon.HasMod( "scope_dcom" ) )
 
 	if ( weaponClass == "mp_weapon_lmg" && !hasAog )
 		return
@@ -90,7 +95,6 @@ void function SniperVGUI_Setup_Threaded( entity selectedWeapon )
 
 	CreateSniperVGUI( player, selectedWeapon )
 }
-#endif
 
 void function SniperVGUI_DidDamage( PlayerDidDamageParams params )
 {
@@ -105,17 +109,16 @@ void function SniperVGUI_DidDamage( PlayerDidDamageParams params )
 	if ( !IsValid( victim ) )
 		return
 
-	entity activeWeapon = attacker.GetActiveWeapon()
-	if ( !IsValid( activeWeapon ) )
+	if ( !IsValid( file.selectedWeapon ) )
 		return
 
-	var weaponClass = activeWeapon.GetWeaponClassName()
+	string weaponClass = file.selectedWeapon.GetWeaponClassName()
 
-	var isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
+	bool isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
 	if ( !isValidWeapon )
 		return
 
-	var entClass = victim.GetSignifierName()
+	string entClass = expect string( victim.GetSignifierName() )
 
 	int damageType = params.damageType
 	int hitGroup = params.hitGroup
@@ -128,14 +131,14 @@ void function SniperVGUI_DidDamage( PlayerDidDamageParams params )
 	{
 		if ( entClass in SniperVGUI_AllowScan && hitGroup != HITGROUP_GENERIC )
 		{
-			if( !isKillShot )
+			if ( !isKillShot )
 				attacker.Signal( "UpdateSniperVGUI", { hitGroup = hitGroup } )
 			else
 				attacker.Signal( "UpdateSniperVGUI_KillShot", { hitGroup = hitGroup } )
 		}
 		else if ( victim.IsTitan() && hitGroup == HITGROUP_GENERIC || isCritShot )
 		{
-			if( !isKillShot )
+			if ( !isKillShot )
 				attacker.Signal( "UpdateSniperVGUI", { hitGroup = hitGroup } )
 			else
 				attacker.Signal( "UpdateSniperVGUI_KillShot", { hitGroup = hitGroup } )
@@ -155,17 +158,16 @@ void function SniperVGUI_CrosshairTargetChanged ( entity player, entity newTarge
 	if ( !IsValid( newTarget ) )
 		return
 
-	entity activeWeapon = player.GetActiveWeapon()
-	if ( !IsValid( activeWeapon ) )
+	if ( !IsValid( file.selectedWeapon ) )
 		return
 
-	var weaponClass = activeWeapon.GetWeaponClassName()
+	string weaponClass = file.selectedWeapon.GetWeaponClassName()
 
-	var isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
+	bool isValidWeapon = ( weaponClass in SniperVGUI_AllowedWeapons )
 	if ( !isValidWeapon )
 		return
 
-	if ( !IsCloaked( newTarget ) && isValidWeapon && player.GetAdsFraction() > 0.7 )
+	if ( !IsCloaked( newTarget ) && player.GetAdsFraction() > 0.7 )
 	{
 		player.Signal( "SniperVGUI_TargetChanged", { newTarget = newTarget } )
 	}
@@ -181,14 +183,14 @@ void function CreateSniperVGUI( entity player, entity weapon )
 	if ( "sniperVGUI" in weapon.s )
 		return
 
-	string vguiName 	= "vgui_sniper"
-	entity modelEnt		= player.GetViewModelEntity()
+	string vguiName = "vgui_sniper"
+	entity modelEnt	= player.GetViewModelEntity()
 	if ( !IsValid( modelEnt ) )
 		return
 
 	local fixedSize
 
-	var isValkyrie = ( weapon.GetWeaponClassName() == "mp_weapon_valkyrie" || weapon.GetWeaponClassName() == "mp_weapon_sr_valkyrie" )
+	bool isValkyrie = ( weapon.GetWeaponClassName() == "mp_weapon_valkyrie" || weapon.GetWeaponClassName() == "mp_weapon_sr_valkyrie" )
 
 	if ( isValkyrie )
 	{
@@ -261,10 +263,14 @@ void function CreateSniperVGUI( entity player, entity weapon )
 	thread SniperVGUI_Think( player, weapon )
 	thread SniperVGUI_Think_KillShot( player, weapon )
 
-	thread USFDGF78WR78FGW( player, weapon )
+	thread SniperVGUI_UpdateSettings( player, weapon )
+
+//	printt( "//////////////////////////////////////////////" )
+//	printt( "Created sniper VGUI for: " + weapon )
+//	printt( "//////////////////////////////////////////////" )
 }
 
-void function USFDGF78WR78FGW( entity player, entity weapon )
+void function SniperVGUI_UpdateSettings( entity player, entity weapon )
 {
 	weapon.s.sniperVGUI.EndSignal( "OnDestroy" )
 	player.EndSignal( "OnDestroy" )
@@ -283,6 +289,8 @@ void function USFDGF78WR78FGW( entity player, entity weapon )
 		if ( !IsValid( modelEnt ) )
 			return
 
+		bool isValkyrie = ( weapon.GetWeaponClassName() == "mp_weapon_valkyrie" || weapon.GetWeaponClassName() == "mp_weapon_sr_valkyrie" )
+
 		// TODO: per-weapon overrides
 		float default_x = 		GetConVarFloat( "SniperUI.DefaultX" )
 		float default_y = 		GetConVarFloat( "SniperUI.DefaultY" )
@@ -298,13 +306,21 @@ void function USFDGF78WR78FGW( entity player, entity weapon )
 
 		if ( player.GetAdsFraction() < 0.7 )
 		{
-			bottomLeftAttachment = "l_hand_ik"
-			topRightAttachment = "r_hand_ik"
+			if ( isValkyrie )
+			{
+				bottomLeftAttachment = "L_HAND"
+				topRightAttachment = "R_HAND"
+			}
+			else
+			{
+				bottomLeftAttachment = "l_hand_ik"
+				topRightAttachment = "r_hand_ik"
+			}
+
 			fixedOffsets =		[ 0.0, 0.0, 0.0 ]
 		}
 		else
 		{
-			var isValkyrie = ( weapon.GetWeaponClassName() == "mp_weapon_valkyrie" || weapon.GetWeaponClassName() == "mp_weapon_sr_valkyrie" )
 
 			if ( isValkyrie )
 			{
@@ -385,10 +401,14 @@ void function USFDGF78WR78FGW( entity player, entity weapon )
 
 void function DestroySniperVGUI( entity weapon )
 {
-	if ( "sniperVGUI" in weapon.s )
+	if ( IsValid( weapon ) && "sniperVGUI" in weapon.s )
 	{
 		weapon.s.sniperVGUI.Destroy()
 		delete weapon.s.sniperVGUI
+
+//		printt( "// -------------------------------------------------" )
+//		printt( "Deleted " + weapon + "'s sniper VGUI" )
+//		printt( "// -------------------------------------------------" )
 	}
 }
 
@@ -444,7 +464,7 @@ void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup, bo
 		float blue_label =	GetConVarFloat( "SniperUI.HitLabelBlue" )
 		float alpha_label =	GetConVarFloat( "SniperUI.HitLabelAlpha" )
 
-		if( isKillShot )
+		if ( isKillShot )
 		{
 			red_label =		GetConVarFloat( "SniperUI.KillLabelRed" )
 			green_label =	GetConVarFloat( "SniperUI.KillLabelGreen" )
@@ -462,7 +482,7 @@ void function SniperVGUI_ShowHit( entity player, entity weapon, var hitGroup, bo
 			t.confidenceLabel.Show()
 			t.confidenceLabel.SetColor( red_label, green_label, blue_label, alpha_label )
 			
-			if( !isKillShot )
+			if ( !isKillShot )
 				t.confidenceLabel.SetText( "#WPN_DMR_HIT_CONFIRMED" )
 			else
 				t.confidenceLabel.SetText( "#WPN_DMR_KILL_CONFIRMED" )
@@ -493,12 +513,12 @@ void function SniperVGUI_PotentialHitThink( entity player, entity weapon )
 		if ( newTarget.GetTeam() == player.GetTeam() )
 			continue
 
-		var entClass = results.newTarget.GetSignifierName()
+		var entClass = newTarget.GetSignifierName()
 
 		if ( !( entClass in SniperVGUI_AllowScan ) )
 			continue
 
-		thread SniperVGUI_UpdateTargetData( player, results.newTarget, weapon )
+		thread SniperVGUI_UpdateTargetData( player, newTarget, weapon )
 	}
 }
 
@@ -525,11 +545,11 @@ void function SniperVGUI_UpdateTargetData( entity player, var crosshairTarget, e
 				continue
 			}
 
-			var entClass = target.GetSignifierName()
+			string entClass = expect string( target.GetSignifierName() )
 
 			int hitGroup = traceResult.hitGroup
 
-			var hitData = GetHitProbabilityData( player, target, hitGroup, weapon )
+			table hitData = GetHitProbabilityData( player, target, hitGroup, weapon )
 
 			float unit_div
 			if ( !GetConVarBool( "SniperUI.Measure_HU" ) )
@@ -585,7 +605,7 @@ void function SniperVGUI_UpdateTargetData( entity player, var crosshairTarget, e
 	}
 }
 
-var function GetHitProbabilityData( entity player, entity target, var hitGroup, entity weapon )
+table function GetHitProbabilityData( entity player, entity target, int hitGroup, entity weapon )
 {
 	var t = weapon.s.sniperVGUI.s
 
